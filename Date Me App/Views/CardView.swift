@@ -55,7 +55,6 @@ class CardView: UIView {
         if gesture.state == .changed {
             handleChanged(gesture: gesture)
         }
-        
         else if gesture.state == .ended {
             handleEnded(gesture: gesture)
         }

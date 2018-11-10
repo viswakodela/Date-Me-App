@@ -17,4 +17,13 @@ struct Users {
     let profession: String
     let imageName: String
     
+    func toCardViewModel() -> CardViewModel {
+        
+        let attributedText = NSMutableAttributedString(string: "\(self.userName)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 32, weight: .heavy)])
+        attributedText.append(NSAttributedString(string: "  \(self.age)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .regular)]))
+        attributedText.append(NSAttributedString(string: "\n\(self.profession)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 20, weight: .regular)]))
+        
+        return CardViewModel(imageName: self.imageName, attributedText: attributedText, textAlignment: .left)
+        
+    }
 }

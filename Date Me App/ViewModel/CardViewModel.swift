@@ -8,8 +8,10 @@
 
 import UIKit
 
-class CardViewModel {
+struct CardViewModel {
     
-    
+    let imageName: String
+    let attributedText: NSAttributedString
+    let textAlignment: NSTextAlignment
     
 }

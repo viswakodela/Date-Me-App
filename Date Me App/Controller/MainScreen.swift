@@ -16,25 +16,25 @@ class MainScreen: UIViewController {
         setupDummyCards()
     }
     
-    let users = [Users(userName: "Mouni", age: 24, profession: "Software Developer", imageName: "mouni"),
-                 Users(userName: "Susmitha", age: 22, profession: "Developer", imageName: "susmi")]
+//    let users = [Users(userName: "Mouni", age: 24, profession: "Software Developer", imageName: "mouni"),
+//                 Users(userName: "Susmitha", age: 22, profession: "Developer", imageName: "susmi")]
+    
+    let cardViewModelArray = [
+    Users(userName: "Mouni", age: 24, profession: "Software Developer", imageName: "mouni").toCardViewModel(),
+    Users(userName: "Susmitha", age: 22, profession: "Developer", imageName: "susmi").toCardViewModel()
+    ]
     
     fileprivate func setupDummyCards() {
         
-        users.forEach { (user) in
+        cardViewModelArray.forEach { (cardVM) in
             let cardView = CardView()
             cardView.translatesAutoresizingMaskIntoConstraints = false
             cardView.layer.cornerRadius = 10
             cardView.clipsToBounds = true
             
-            cardView.imageView.image = #imageLiteral(resourceName: "mouni")
-            
-            let attributedText = NSMutableAttributedString(string: "\(user.userName)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 32, weight: .heavy)])
-            attributedText.append(NSAttributedString(string: "  \(user.age)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .regular)]))
-            attributedText.append(NSAttributedString(string: "\n\(user.profession)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 20, weight: .regular)]))
-            cardView.informationLabel.attributedText = attributedText
-            
-            cardView.imageView.image = UIImage(named: "\(user.imageName)")
+            cardView.imageView.image = UIImage(named: cardVM.imageName)
+            cardView.informationLabel.attributedText = cardVM.attributedText
+            cardView.informationLabel.textAlignment = cardVM.textAlignment
             
             blueView.addSubview(cardView)
             cardView.topAnchor.constraint(equalTo: blueView.topAnchor).isActive = true
