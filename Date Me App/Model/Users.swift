@@ -7,15 +7,17 @@
 //
 
 import UIKit
-import Foundation
 
+protocol ProducesCardViewModel {
+    func toCardViewModel() -> CardViewModel
+}
 
-struct Users {
+struct Users: ProducesCardViewModel {
     
     let userName: String
     let age: Int
     let profession: String
-    let imageName: String
+    let imageNames: [String]
     
     func toCardViewModel() -> CardViewModel {
         
@@ -23,7 +25,9 @@ struct Users {
         attributedText.append(NSAttributedString(string: "  \(self.age)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .regular)]))
         attributedText.append(NSAttributedString(string: "\n\(self.profession)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 20, weight: .regular)]))
         
-        return CardViewModel(imageName: self.imageName, attributedText: attributedText, textAlignment: .left)
+        return CardViewModel(imageNames: self.imageNames, attributedText: attributedText, textAlignment: .left)
         
     }
+    
+    
 }

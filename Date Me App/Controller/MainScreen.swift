@@ -16,13 +16,11 @@ class MainScreen: UIViewController {
         setupDummyCards()
     }
     
-//    let users = [Users(userName: "Mouni", age: 24, profession: "Software Developer", imageName: "mouni"),
-//                 Users(userName: "Susmitha", age: 22, profession: "Developer", imageName: "susmi")]
-    
-    let cardViewModelArray = [
-    Users(userName: "Mouni", age: 24, profession: "Software Developer", imageName: "mouni").toCardViewModel(),
-    Users(userName: "Susmitha", age: 22, profession: "Developer", imageName: "susmi").toCardViewModel()
-    ]
+    let cardViewModelArray = ([
+        Users(userName: "Mouni", age: 24, profession: "Software Developer", imageNames: ["mouni", "viswa", "mouni2"]),
+        Users(userName: "Susmitha", age: 22, profession: "Developer", imageNames: ["susmi"]),
+        Advertisers(title: "Date Me App", brandName: "Datooo", posterPhotoName: ["mouni"])
+        ] as [ProducesCardViewModel]).map { $0.toCardViewModel()}
     
     fileprivate func setupDummyCards() {
         
@@ -32,9 +30,7 @@ class MainScreen: UIViewController {
             cardView.layer.cornerRadius = 10
             cardView.clipsToBounds = true
             
-            cardView.imageView.image = UIImage(named: cardVM.imageName)
-            cardView.informationLabel.attributedText = cardVM.attributedText
-            cardView.informationLabel.textAlignment = cardVM.textAlignment
+            cardView.cardViewModel = cardVM
             
             blueView.addSubview(cardView)
             cardView.topAnchor.constraint(equalTo: blueView.topAnchor).isActive = true
