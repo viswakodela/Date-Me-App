@@ -17,7 +17,7 @@ class MainScreen: UIViewController {
     }
     
     let cardViewModelArray = ([
-        Users(userName: "Mouni", age: 24, profession: "Software Developer", imageNames: ["mouni", "viswa", "mouni2"]),
+        Users(userName: "Mouni", age: 24, profession: "Software Developer", imageNames: ["mouni", "mouni2"]),
         Users(userName: "Susmitha", age: 22, profession: "Developer", imageNames: ["susmi"]),
         Advertisers(title: "Date Me App", brandName: "Datooo", posterPhotoName: ["mouni"])
         ] as [ProducesCardViewModel]).map { $0.toCardViewModel()}

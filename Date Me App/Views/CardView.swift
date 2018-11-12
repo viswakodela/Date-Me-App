@@ -37,6 +37,8 @@ class CardView: UIView {
                 barsStackView.addArrangedSubview(barView)
             }
             barsStackView.arrangedSubviews.first?.backgroundColor = .white
+            
+            setupImgaeObserver()
         }
     }
     
@@ -108,18 +110,30 @@ class CardView: UIView {
         let shouldAdvaceNextPhoto = location.x > frame.width / 2 ? true : false
         
         if shouldAdvaceNextPhoto {
-            imageIndex = imageIndex + 1
-            imageIndex = min(imageIndex, cardViewModel.imageNames.count - 1)
+            cardViewModel.advanceNextPhoto()
         } else {
-            imageIndex = imageIndex - 1
-            imageIndex = max(0, imageIndex)
+            cardViewModel.prevPhoto()
         }
         
-        self.imageView.image = UIImage(named: cardViewModel.imageNames[imageIndex])
-        barsStackView.arrangedSubviews.forEach { (v) in
-            v.backgroundColor = UIColor(white: 0, alpha: 0.1)
+//        if shouldAdvaceNextPhoto {
+//            imageIndex = min(imageIndex + 1, cardViewModel.imageNames.count - 1)
+//        } else {
+//            imageIndex = max(0, imageIndex - 1)
+//        }
+//
+//        self.imageView.image = UIImage(named: cardViewModel.imageNames[imageIndex])
+    }
+    
+    func setupImgaeObserver() {
+        
+        cardViewModel.imageIndexObserver = { [unowned self] (index, image) in
+            self.imageView.image = image
+            self.barsStackView.arrangedSubviews.forEach({ (v) in
+                v.backgroundColor = UIColor(white: 0, alpha: 0.1)
+            })
+            self.barsStackView.arrangedSubviews[index].backgroundColor = .white
         }
-        barsStackView.arrangedSubviews[imageIndex].backgroundColor = .white
+        
     }
     
     @objc func handlePan(gesture: UIPanGestureRecognizer) {
