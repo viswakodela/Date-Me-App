@@ -37,7 +37,6 @@ class CardView: UIView {
                 barsStackView.addArrangedSubview(barView)
             }
             barsStackView.arrangedSubviews.first?.backgroundColor = .white
-            
             setupImgaeObserver()
         }
     }
