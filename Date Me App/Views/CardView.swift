@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class CardView: UIView {
     
@@ -22,9 +23,13 @@ class CardView: UIView {
     var cardViewModel: CardViewModel! {
         didSet {
             guard let imageNames = cardViewModel?.imageNames else {return}
+            let firstImage = imageNames.first
+            let url = URL(string: firstImage ?? "")
+            self.imageView.sd_setImage(with: url, completed: nil)
+            
             guard let textAlignment = cardViewModel?.textAlignment else {return}
             guard let attributedTest = cardViewModel?.attributedText else {return}
-            self.imageView.image = UIImage(named: imageNames.first ?? "")
+        
             self.informationLabel.textAlignment = textAlignment
             self.informationLabel.attributedText = attributedTest
             
@@ -33,6 +38,7 @@ class CardView: UIView {
                 let barView = UIView()
                 barView.backgroundColor = UIColor(white: 0, alpha: 0.1)
                 barView.layer.cornerRadius = 2
+                barView.translatesAutoresizingMaskIntoConstraints = false
                 barView.clipsToBounds = true
                 barsStackView.addArrangedSubview(barView)
             }
@@ -163,7 +169,7 @@ class CardView: UIView {
     
     func handleEnded(gesture: UIPanGestureRecognizer) {
         
-        let threshold =  100
+        let threshold = 50
         let shouldDismisCard = Int(abs(gesture.translation(in: nil).x)) > threshold ? true : false
         let translationDirection: CGFloat = gesture.translation(in: nil).x > 0 ? 1 : -1
         
@@ -174,7 +180,6 @@ class CardView: UIView {
             } else {
                 self.transform = .identity
             }
-            
         }) { (_) in
             if shouldDismisCard {
                 self.removeFromSuperview()

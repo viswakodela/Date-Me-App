@@ -167,44 +167,73 @@ class RegistrationController: UIViewController, UIImagePickerControllerDelegate,
     
     let handlingRegister = JGProgressHUD(style: .dark)
     
-    @objc func handleRegister() {
+    func registeringUser(with email: String, password: String) {
         
-        self.handleTapDismiss()
-        guard let email = emailTextField.text else {return}
-        guard let password = passwordTextField.text else {return}
-        Auth.auth().createUser(withEmail: email, password: password) { [unowned self] (result, err) in
+        Auth.auth().createUser(withEmail: email, password: password) { (res, err) in
             if err != nil {
                 guard let error = err else {return}
                 self.showProgressHUD(error: error)
                 return
             }
-            
             self.handlingRegister.textLabel.text = "Registering"
             self.handlingRegister.show(in: self.view)
-            
-            let fileName = UUID().uuidString
-            let storageRef = Storage.storage().reference().child("profile_images").child(fileName)
-            
-            guard let data = self.selectPhotoButton.imageView?.image?.jpegData(compressionQuality: 0.8) else {return}
-            storageRef.putData(data, metadata: nil, completion: { [unowned self] (_, err) in
-                if err != nil {
-                    guard let error = err else { return }
-                    self.showProgressHUD(error: error)
-                }
-                
-                storageRef.downloadURL(completion: { (url, error) in
-                    if let error = error {
-                        self.showProgressHUD(error: error)
-                        return
-                    }
-                    print("Download URL: \(url?.absoluteString ?? "")")
-                })
-                self.handlingRegister.dismiss()
-            })
         }
     }
     
+    func uploadingToStorage() {
+        
+        let fileName = UUID().uuidString
+        let storageRef = Storage.storage().reference().child("profile_images").child(fileName)
+        guard let data = self.selectPhotoButton.imageView?.image?.jpegData(compressionQuality: 0.8) else {return}
+        storageRef.putData(data, metadata: nil, completion: { [unowned self] (_, err) in
+            if err != nil {
+                guard let error = err else { return }
+                self.showProgressHUD(error: error)
+                return
+            }
+            self.downloadURLofImage(reference: storageRef)
+            self.handlingRegister.dismiss()
+        })
+    }
+    
+    func downloadURLofImage(reference: StorageReference) {
+        reference.downloadURL(completion: { (url, error) in
+            if let error = error {
+                self.showProgressHUD(error: error)
+                return
+            }
+            guard let url = url?.absoluteString else {return}
+            self.saveUsersIntoDatabase(imageUrl: url)
+        })
+    }
+    
+    func saveUsersIntoDatabase(imageUrl: String) {
+        
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        let docData = ["fullName" : fullNameTextField.text ?? "", "uid" : uid, "imageUrl" : imageUrl]
+        Firestore.firestore().collection("users").document(uid).setData(docData) { (err) in
+            if let error = err {
+                self.showProgressHUD(error: error)
+                return
+            }
+        }
+    }
+    
+    @objc func handleRegister() {
+        
+        self.handleTapDismiss()
+        guard let email = emailTextField.text else {return}
+        guard let password = passwordTextField.text else {return}
+        
+        self.registeringUser(with: email, password: password)
+        self.uploadingToStorage()
+        self.handlingRegister.dismiss()
+    }
+    
+    
+    
     func showProgressHUD(error: Error) {
+        handlingRegister.dismiss()
         let hud = JGProgressHUD(style: .dark)
         hud.textLabel.text = "Failed Registration"
         hud.detailTextLabel.text = error.localizedDescription

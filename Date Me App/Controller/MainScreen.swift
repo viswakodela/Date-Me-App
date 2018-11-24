@@ -7,22 +7,53 @@
 //
 
 import UIKit
+import Firebase
+import JGProgressHUD
+import SDWebImage
 
 class MainScreen: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpViews()
-        setupDummyCards()
+        setupCardViews()
+        fetchUsersFromFirestore()
     }
     
-    let cardViewModelArray = ([
-        Users(userName: "Mouni", age: 24, profession: "Software Developer", imageNames: ["mouni", "mouni2"]),
-        Users(userName: "Susmitha", age: 22, profession: "Developer", imageNames: ["susmi"]),
-        Advertisers(title: "Date Me App", brandName: "Datooo", posterPhotoName: ["mouni"])
-        ] as [ProducesCardViewModel]).map { $0.toCardViewModel()}
+//    let cardViewModelArray = ([
+//        Users(userName: "Mouni", age: 24, profession: "Software Developer", imageNames: ["mouni", "mouni2"]),
+//        Users(userName: "Susmitha", age: 22, profession: "Developer", imageNames: ["susmi"]),
+//        Advertisers(title: "Date Me App", brandName: "Datooo", posterPhotoName: ["mouni"])
+//        ] as [ProducesCardViewModel]).map { $0.toCardViewModel()}
     
-    fileprivate func setupDummyCards() {
+    var cardViewModelArray = [CardViewModel]()
+    
+    func fetchUsersFromFirestore() {
+        
+        Firestore.firestore().collection("users").getDocuments { (snapshot, error) in
+            if let error = error {
+                self.showProgressHUD(error: error, text: error.localizedDescription)
+                return
+            }
+            
+            snapshot?.documents.forEach({ (documentSnapshot) in
+                let userDictionary = documentSnapshot.data()
+                let user = Users(dictionary: userDictionary)
+                self.cardViewModelArray.append(user.toCardViewModel())
+            })
+            self.setupCardViews()
+        }
+    }
+    
+    func showProgressHUD(error: Error, text: String) {
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = text
+        hud.detailTextLabel.text = error.localizedDescription
+        hud.show(in: self.view)
+        hud.dismiss(afterDelay: 4)
+    }
+    
+    fileprivate func setupCardViews() {
         
         cardViewModelArray.forEach { (cardVM) in
             let cardView = CardView()

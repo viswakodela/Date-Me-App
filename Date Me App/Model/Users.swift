@@ -14,20 +14,34 @@ protocol ProducesCardViewModel {
 
 struct Users: ProducesCardViewModel {
     
-    let userName: String
-    let age: Int
-    let profession: String
-    let imageNames: [String]
+    let userName: String?
+    let age: Int?
+    let profession: String?
+    let imageUrl1: String?
+    let uid: String?
+    
+    init (dictionary: [String : Any]) {
+        
+        self.age = dictionary["age"] as? Int
+        self.profession = dictionary["profession"] as? String
+        
+        self.userName = dictionary["fullName"] as? String
+        self.imageUrl1 = dictionary["imageUrl"] as? String ?? ""
+        self.uid = dictionary["uid"] as? String
+    }
     
     func toCardViewModel() -> CardViewModel {
         
-        let attributedText = NSMutableAttributedString(string: "\(self.userName)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 32, weight: .heavy)])
-        attributedText.append(NSAttributedString(string: "  \(self.age)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .regular)]))
-        attributedText.append(NSAttributedString(string: "\n\(self.profession)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 20, weight: .regular)]))
+        let attributedText = NSMutableAttributedString(string: "\(self.userName ?? "")", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 32, weight: .heavy)])
         
-        return CardViewModel(imageNames: self.imageNames, attributedText: attributedText, textAlignment: .left)
+        let ageString = age != nil ? "\(age!)" : "N\\A"
+        attributedText.append(NSAttributedString(string: "  \(ageString)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 24, weight: .regular)]))
+        let profession = self.profession != nil ? "\(self.profession!)" : "Not available"
+        attributedText.append(NSAttributedString(string: "\n\(profession)", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 20, weight: .regular)]))
         
+        if let imageUrl1 = imageUrl1 {
+            return CardViewModel(imageNames: [imageUrl1], attributedText: attributedText, textAlignment: .left)
+        }
+        return CardViewModel(imageNames: [""], attributedText: attributedText, textAlignment: .center)
     }
-    
-    
 }
