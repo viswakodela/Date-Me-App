@@ -22,13 +22,13 @@ class CardViewModel {
     
     var imageIndex = 0 {
         didSet {
-            let imageName = self.imageNames[imageIndex]
-            imageIndexObserver?(imageIndex , UIImage(named: imageName))
+            let imageUrl = self.imageNames[imageIndex]
+            imageIndexObserver?(imageIndex, imageUrl)
         }
     }
     
     //Reactive Programmingnmnm
-    var imageIndexObserver: ((Int, UIImage?) -> ())?
+    var imageIndexObserver: ((Int, String?) -> ())?
     
     func advanceNextPhoto() {
         imageIndex = min(imageIndex + 1, imageNames.count - 1)

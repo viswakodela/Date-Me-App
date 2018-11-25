@@ -29,7 +29,6 @@ class CardView: UIView {
             
             guard let textAlignment = cardViewModel?.textAlignment else {return}
             guard let attributedTest = cardViewModel?.attributedText else {return}
-        
             self.informationLabel.textAlignment = textAlignment
             self.informationLabel.attributedText = attributedTest
             
@@ -93,8 +92,6 @@ class CardView: UIView {
         barsStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 4).isActive = true
         barsStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -4).isActive = true
         barsStackView.heightAnchor.constraint(equalToConstant: 4).isActive = true
-        
-        
     }
     
     let gradientLayer = CAGradientLayer()
@@ -108,7 +105,6 @@ class CardView: UIView {
         gradientLayer.frame = self.frame
     }
     
-    var imageIndex = 0
     @objc func handleTap(gesture: UITapGestureRecognizer) {
         
         let location = gesture.location(in: nil)
@@ -131,14 +127,15 @@ class CardView: UIView {
     
     func setupImgaeObserver() {
         
-        cardViewModel.imageIndexObserver = { [unowned self] (index, image) in
-            self.imageView.image = image
+        cardViewModel.imageIndexObserver = { [unowned self] (index, imageUrl) in
+            if let url = URL(string: imageUrl ?? "") {
+                self.imageView.sd_setImage(with: url)
+            }
             self.barsStackView.arrangedSubviews.forEach({ (v) in
                 v.backgroundColor = UIColor(white: 0, alpha: 0.1)
             })
             self.barsStackView.arrangedSubviews[index].backgroundColor = .white
         }
-        
     }
     
     @objc func handlePan(gesture: UIPanGestureRecognizer) {
@@ -164,7 +161,6 @@ class CardView: UIView {
         let radian = degree / 57.295 // Formulae for changing the degrees into Radions
         let rotationalTraform = CGAffineTransform(rotationAngle: radian)
         self.transform = rotationalTraform.translatedBy(x: translation.x, y: translation.y)
-        
     }
     
     func handleEnded(gesture: UIPanGestureRecognizer) {

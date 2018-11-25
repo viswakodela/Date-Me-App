@@ -16,7 +16,6 @@ class MainScreen: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpViews()
-        setupCardViews()
         fetchUsersFromFirestore()
     }
     
@@ -28,58 +27,73 @@ class MainScreen: UIViewController {
     
     var cardViewModelArray = [CardViewModel]()
     
+    var lastFetchedUser: Users?
+    
     func fetchUsersFromFirestore() {
         
-        Firestore.firestore().collection("users").getDocuments { (snapshot, error) in
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Fetching Users"
+        hud.show(in: view)
+        
+        let query = Firestore.firestore().collection("users").order(by: "uid").start(after: [lastFetchedUser?.uid ?? ""]).limit(to: 2)
+        
+        query.getDocuments { [weak self](snapshot, error) in
+            hud.dismiss()
             if let error = error {
-                self.showProgressHUD(error: error, text: error.localizedDescription)
+                self?.showProgressHUD(text: error.localizedDescription)
                 return
             }
-            
             snapshot?.documents.forEach({ (documentSnapshot) in
                 let userDictionary = documentSnapshot.data()
                 let user = Users(dictionary: userDictionary)
-                self.cardViewModelArray.append(user.toCardViewModel())
+                self?.cardViewModelArray.append(user.toCardViewModel())
+                self?.lastFetchedUser = user
+                self?.setupCardViews(user: user)
             })
-            self.setupCardViews()
         }
     }
     
-    func showProgressHUD(error: Error, text: String) {
+    func showProgressHUD(text: String) {
         let hud = JGProgressHUD(style: .dark)
-        hud.textLabel.text = text
-        hud.detailTextLabel.text = error.localizedDescription
+        hud.textLabel.text = "Something went Wrong..!"
+        hud.detailTextLabel.text = text
         hud.show(in: self.view)
         hud.dismiss(afterDelay: 4)
     }
     
-    fileprivate func setupCardViews() {
+    fileprivate func setupCardViews(user: Users) {
         
-        cardViewModelArray.forEach { (cardVM) in
-            let cardView = CardView()
-            cardView.translatesAutoresizingMaskIntoConstraints = false
-            cardView.layer.cornerRadius = 10
-            cardView.clipsToBounds = true
-            
-            cardView.cardViewModel = cardVM
-            
-            blueView.addSubview(cardView)
-            cardView.topAnchor.constraint(equalTo: blueView.topAnchor).isActive = true
-            cardView.leadingAnchor.constraint(equalTo: blueView.leadingAnchor).isActive = true
-            cardView.trailingAnchor.constraint(equalTo: blueView.trailingAnchor).isActive = true
-            cardView.bottomAnchor.constraint(equalTo: blueView.bottomAnchor).isActive = true
-        }
+        let cardView = CardView()
+        cardView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.layer.cornerRadius = 10
+        cardView.clipsToBounds = true
         
-        overallStackView.isLayoutMarginsRelativeArrangement = true
-        overallStackView.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        cardView.cardViewModel = user.toCardViewModel()
+        
+        blueView.addSubview(cardView)
+        
+        blueView.sendSubviewToBack(cardView)
+        
+        cardView.topAnchor.constraint(equalTo: blueView.topAnchor).isActive = true
+        cardView.leadingAnchor.constraint(equalTo: blueView.leadingAnchor).isActive = true
+        cardView.trailingAnchor.constraint(equalTo: blueView.trailingAnchor).isActive = true
+        cardView.bottomAnchor.constraint(equalTo: blueView.bottomAnchor).isActive = true
+        
         overallStackView.bringSubviewToFront(blueView)
     }
 
     let profileButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(#imageLiteral(resourceName: "top_left_profile").withRenderingMode(.alwaysOriginal), for: .normal)
-        return button
+        let profButton = UIButton(type: .system)
+        profButton.setImage(#imageLiteral(resourceName: "top_left_profile").withRenderingMode(.alwaysOriginal), for: .normal)
+        profButton.addTarget(self, action: #selector(handleSettings), for: .touchUpInside)
+        return profButton
     }()
+    
+    @objc func handleSettings() {
+        let settings = SettingsController()
+        let navSettingsController = UINavigationController(rootViewController: settings)
+        present(navSettingsController, animated: true, completion: nil)
+    }
     
     let appIconImageView: UIImageView = {
         let iv = UIImageView()
@@ -95,10 +109,17 @@ class MainScreen: UIViewController {
     }()
     
     let refreshButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(#imageLiteral(resourceName: "refresh_circle").withRenderingMode(.alwaysOriginal), for: .normal)
-        return button
+        let refreshbutton = UIButton(type: .system)
+        refreshbutton.setImage(#imageLiteral(resourceName: "refresh_circle").withRenderingMode(.alwaysOriginal), for: .normal)
+        refreshbutton.addTarget(self, action: #selector(handleRefreshButton), for: .touchUpInside)
+        return refreshbutton
     }()
+    
+    @objc func handleRefreshButton() {
+        
+        fetchUsersFromFirestore()
+        
+    }
     
     let dismissButton: UIButton = {
         let button = UIButton(type: .system)
@@ -153,10 +174,10 @@ class MainScreen: UIViewController {
 //        stackView.distribution = .fillEqually
         
         view.addSubview(overallStackView)
-        overallStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        overallStackView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        overallStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        overallStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        overallStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8).isActive = true
+        overallStackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 8).isActive = true
+        overallStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8).isActive = true
+        overallStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
         
     }
     
