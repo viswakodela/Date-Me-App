@@ -210,7 +210,7 @@ class RegistrationController: UIViewController, UIImagePickerControllerDelegate,
     func saveUsersIntoDatabase(imageUrl: String) {
         
         guard let uid = Auth.auth().currentUser?.uid else {return}
-        let docData = ["fullName" : fullNameTextField.text ?? "", "uid" : uid, "imageUrl" : imageUrl]
+        let docData = ["fullName" : fullNameTextField.text ?? "", "uid" : uid, "imageUrl1" : imageUrl]
         Firestore.firestore().collection("users").document(uid).setData(docData) { (err) in
             if let error = err {
                 self.showProgressHUD(error: error)

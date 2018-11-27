@@ -14,10 +14,10 @@ protocol ProducesCardViewModel {
 
 struct Users: ProducesCardViewModel {
     
-    let userName: String?
-    let age: Int?
-    let profession: String?
-    let imageUrl1: String?
+    var userName: String?
+    var age: Int?
+    var profession: String?
+    var imageUrl1: String?
     let uid: String?
     
     init (dictionary: [String : Any]) {

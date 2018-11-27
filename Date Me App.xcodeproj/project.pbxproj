@@ -12,6 +12,7 @@
 		BD2647F02194AD6200FEB9FC /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2647EF2194AD6200FEB9FC /* Users.swift */; };
 		BD2647F42194C14500FEB9FC /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2647F32194C14500FEB9FC /* CardViewModel.swift */; };
 		BD280F7B21AB089800C169F3 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD280F7A21AB089800C169F3 /* SettingsController.swift */; };
+		BD280F7D21AB241400C169F3 /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD280F7C21AB241400C169F3 /* SettingsCell.swift */; };
 		BD3F4A322199FA69002439B0 /* RegistrationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD3F4A312199FA69002439B0 /* RegistrationController.swift */; };
 		BD3F4A34219A045F002439B0 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD3F4A33219A045F002439B0 /* CustomTextField.swift */; };
 		BD3F4A3621A094FC002439B0 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD3F4A3521A094FC002439B0 /* RegistrationViewModel.swift */; };
@@ -32,6 +33,7 @@
 		BD2647EF2194AD6200FEB9FC /* Users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
 		BD2647F32194C14500FEB9FC /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		BD280F7A21AB089800C169F3 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
+		BD280F7C21AB241400C169F3 /* SettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
 		BD3F4A312199FA69002439B0 /* RegistrationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationController.swift; sourceTree = "<group>"; };
 		BD3F4A33219A045F002439B0 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		BD3F4A3521A094FC002439B0 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 			children = (
 				BD2647EC2193532200FEB9FC /* CardView.swift */,
 				BD3F4A33219A045F002439B0 /* CustomTextField.swift */,
+				BD280F7C21AB241400C169F3 /* SettingsCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -294,6 +297,7 @@
 				BD2647ED2193532200FEB9FC /* CardView.swift in Sources */,
 				BDAA2891219214B500EA0B12 /* AppDelegate.swift in Sources */,
 				BD2647F42194C14500FEB9FC /* CardViewModel.swift in Sources */,
+				BD280F7D21AB241400C169F3 /* SettingsCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
