@@ -9,6 +9,7 @@
 import UIKit
 import Firebase
 import SDWebImage
+import JGProgressHUD
 
 class CustiomeImagePicker: UIImagePickerController {
     var button: UIButton?
@@ -22,13 +23,15 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
         setupNavigationItems()
         tableView.backgroundColor = UIColor(white: 0.95, alpha: 1)
         tableView.register(SettingsCell.self, forCellReuseIdentifier: cellId)
+        tableView.register(AgeRangeCell.self, forCellReuseIdentifier: ageCellId)
         tableView.keyboardDismissMode = .onDrag
-        fetchCurrentUserInfroFromFirebase()
+        fetchCurrentUserInfoFromFirebase()
     }
     
     var user: Users?
     
     let cellId = "cellId"
+    let ageCellId = "ageCellId"
     
     lazy var image1Button = createButton(selector: #selector(imageButtonsImagePicker))
     lazy var image2Button = createButton(selector: #selector(imageButtonsImagePicker))
@@ -64,7 +67,7 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
         button.clipsToBounds = true
-        button.contentMode = .scaleAspectFill
+        button.imageView?.contentMode = .scaleAspectFill
         button.backgroundColor = .white
         button.addTarget(self, action: selector, for: .touchUpInside)
         return button
@@ -80,19 +83,52 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let originalimage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage{
-        (picker as? CustiomeImagePicker)?.button?.setImage(originalimage.withRenderingMode(.alwaysOriginal), for: .normal)
-        } else if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-        (picker as? CustiomeImagePicker)?.button?.setImage(editedImage.withRenderingMode(.alwaysOriginal), for: .normal)
+        
+        
+        
+        let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage
+        let imageButton = (picker as? CustiomeImagePicker)?.button
+        imageButton?.setImage(editedImage?.withRenderingMode(.alwaysOriginal), for: .normal)
+        self.dismiss(animated: true, completion: nil)
+        
+        let fileName = UUID().uuidString
+        let ref = Storage.storage().reference().child("profile_images").child(fileName)
+        
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Uploading Image"
+        hud.show(in: view)
+
+        guard let uploadData = editedImage?.jpegData(compressionQuality: 0.8) else {return}
+        
+        ref.putData(uploadData, metadata: nil) { (data, err) in
+            hud.dismiss()
+            if err != nil {
+                print(err ?? "")
+            }
+            print("Finish uploading the Image")
+            
+            ref.downloadURL { (url, err) in
+                if err != nil {
+                    print(err ?? "")
+                }
+                
+                if imageButton == self.image1Button {
+                    self.user?.imageUrl1 = url?.absoluteString
+                } else if imageButton == self.image2Button {
+                    self.user?.imageUrl2 = url?.absoluteString
+                } else {
+                    self.user?.imageUrl3 = url?.absoluteString
+                }
+            }
         }
-        dismiss(animated: true, completion: nil)
     }
     
-    fileprivate func fetchCurrentUserInfroFromFirebase() {
+    fileprivate func fetchCurrentUserInfoFromFirebase() {
         
         guard let uid = Auth.auth().currentUser?.uid else {return}
         
         Firestore.firestore().collection("users").document(uid).getDocument { (snapshot, error) in
+            print(uid)
             if error != nil {
                 print(error ?? "")
             }
@@ -109,6 +145,18 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
         if let imageUrl = self.user?.imageUrl1, let url = URL(string: imageUrl){
             SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
                 self.image1Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+            }
+            
+            if let imageURL2 = self.user?.imageUrl2, let url = URL(string: imageURL2) {
+                SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
+                self.image2Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+                }
+            }
+            
+            if let imageURL3 = self.user?.imageUrl3, let url = URL(string: imageURL3) {
+                SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
+                    self.image3Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+                }
             }
         }
     }
@@ -127,15 +175,31 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
     @objc func handleSave() {
         
         guard let uid =  Auth.auth().currentUser?.uid else {return}
-        let docData = [
+        
+//        let url = url?.absoluteString
+        let docData: [String : Any] = [
             "uid" : uid,
             "fullName" : self.user?.userName ?? "",
             "age" : self.user?.age ?? -1,
-            "imageUrl" : self.user?.imageUrl1 ?? "",
-            "profession" : self.user?.profession ?? ""
-            ] as [String : Any]
-        Firestore.firestore().collection("users").document(uid).setData(docData, completion: nil)
-        self.dismiss(animated: true, completion: nil)
+            "imageUrl1" : self.user?.imageUrl1 ?? "",
+            "imageUrl2" : self.user?.imageUrl2 ?? "",
+            "imageUrl3" : self.user?.imageUrl3 ?? "",
+            "profession" : self.user?.profession ?? "",
+            "bio" : self.user?.bio ?? "",
+            "minAge" : self.user?.minAge ?? -1,
+            "maxAge" : self.user?.maxAge ?? -1
+            ]
+        
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Saving"
+        hud.show(in: self.view)
+        
+        Firestore.firestore().collection("users").document(uid).setData(docData) { (err) in
+            if err != nil {
+                print(err ?? "")
+            }
+        }
+        hud.dismiss()
     }
     
     @objc func handleNameChange(textField: UITextField) {
@@ -151,7 +215,7 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
     }
     
     @objc func handleBioChange(textField: UITextField) {
-        
+        self.user?.bio = textField.text
     }
     
     @objc func handleLogout() {
@@ -184,14 +248,16 @@ extension SettingsController {
             headerLabel.text = "Profession"
         case 3:
             headerLabel.text = "Age"
-        default:
+        case 4:
             headerLabel.text = "Bio"
+        default:
+            headerLabel.text = "Seeking Age range"
         }
         return headerLabel
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 5
+        return 6
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -200,6 +266,23 @@ extension SettingsController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! SettingsCell
+        
+        if indexPath.section == 5 {
+            let ageRangeCell = tableView.dequeueReusableCell(withIdentifier: self.ageCellId, for: indexPath) as! AgeRangeCell
+            
+            ageRangeCell.minLabel.text = "Min  \(self.user?.minAge ?? -1)"
+            ageRangeCell.maxLabel.text = "Max  \(self.user?.maxAge ?? -1)"
+            
+            if let minAge = self.user?.minAge, let maxAge = self.user?.maxAge {
+                ageRangeCell.minSlider.value = Float(minAge)
+                ageRangeCell.maxSlider.value = Float(maxAge)
+            }
+            
+            ageRangeCell.minSlider.addTarget(self, action: #selector(handleMinAgeChange), for: .valueChanged)
+            ageRangeCell.maxSlider.addTarget(self, action: #selector(handleMaxAgeChanged), for: .valueChanged)
+            
+            return ageRangeCell
+        }
         
         switch indexPath.section {
         case 1:
@@ -218,9 +301,24 @@ extension SettingsController {
             }
         default:
             cell.textField.placeholder = "Bio"
+            cell.textField.text = self.user?.bio
             cell.textField.addTarget(self, action: #selector(handleBioChange), for: .editingChanged)
         }
         return cell
+    }
+    
+    @objc func handleMinAgeChange(slider: UISlider) {
+        let indexPath = IndexPath(row: 0, section: 5)
+        let cell = tableView.cellForRow(at: indexPath) as? AgeRangeCell
+        cell?.minLabel.text = "Min  \(Int(slider.value))"
+        self.user?.minAge = Int(slider.value)
+    }
+    
+    @objc func handleMaxAgeChanged(slider: UISlider) {
+        let indexPath = IndexPath(row: 0, section: 5)
+        let cell = tableView.cellForRow(at: indexPath) as? AgeRangeCell
+        cell?.maxLabel.text = "Min  \(Int(slider.value))"
+        self.user?.maxAge = Int(slider.value)
     }
     
 }

@@ -37,7 +37,7 @@ class MainScreen: UIViewController {
         
         let query = Firestore.firestore().collection("users").order(by: "uid").start(after: [lastFetchedUser?.uid ?? ""]).limit(to: 2)
         
-        query.getDocuments { [weak self](snapshot, error) in
+        query.getDocuments { [weak self] (snapshot, error) in
             hud.dismiss()
             if let error = error {
                 self?.showProgressHUD(text: error.localizedDescription)

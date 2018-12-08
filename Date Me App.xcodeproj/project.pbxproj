@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3214C1B3BBDA802E94521803 /* Pods_Date_Me_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EB5E1BD74FC49E145C46A57 /* Pods_Date_Me_App.framework */; };
+		BD23488B21B9B47F0061C733 /* AgeRangeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD23488A21B9B47F0061C733 /* AgeRangeCell.swift */; };
 		BD2647ED2193532200FEB9FC /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2647EC2193532200FEB9FC /* CardView.swift */; };
 		BD2647F02194AD6200FEB9FC /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2647EF2194AD6200FEB9FC /* Users.swift */; };
 		BD2647F42194C14500FEB9FC /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2647F32194C14500FEB9FC /* CardViewModel.swift */; };
@@ -29,6 +30,7 @@
 		3893CDEC37B3A8960A6B0D6A /* Pods-Date Me App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Date Me App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Date Me App/Pods-Date Me App.debug.xcconfig"; sourceTree = "<group>"; };
 		457FBCF33BADD9D8FC6FB174 /* Pods-Date Me App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Date Me App.release.xcconfig"; path = "Pods/Target Support Files/Pods-Date Me App/Pods-Date Me App.release.xcconfig"; sourceTree = "<group>"; };
 		6EB5E1BD74FC49E145C46A57 /* Pods_Date_Me_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Date_Me_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD23488A21B9B47F0061C733 /* AgeRangeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeRangeCell.swift; sourceTree = "<group>"; };
 		BD2647EC2193532200FEB9FC /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		BD2647EF2194AD6200FEB9FC /* Users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
 		BD2647F32194C14500FEB9FC /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 				BD2647EC2193532200FEB9FC /* CardView.swift */,
 				BD3F4A33219A045F002439B0 /* CustomTextField.swift */,
 				BD280F7C21AB241400C169F3 /* SettingsCell.swift */,
+				BD23488A21B9B47F0061C733 /* AgeRangeCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -290,6 +293,7 @@
 				BD3F4A322199FA69002439B0 /* RegistrationController.swift in Sources */,
 				BD3F4A3621A094FC002439B0 /* RegistrationViewModel.swift in Sources */,
 				BD4F5E2F21973F80007F10BA /* Advertisers.swift in Sources */,
+				BD23488B21B9B47F0061C733 /* AgeRangeCell.swift in Sources */,
 				BD2647F02194AD6200FEB9FC /* Users.swift in Sources */,
 				BDAA2893219214B500EA0B12 /* MainScreen.swift in Sources */,
 				BD3F4A34219A045F002439B0 /* CustomTextField.swift in Sources */,

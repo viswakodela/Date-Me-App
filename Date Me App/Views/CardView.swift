@@ -23,9 +23,10 @@ class CardView: UIView {
     var cardViewModel: CardViewModel! {
         didSet {
             guard let imageNames = cardViewModel?.imageNames else {return}
-            let firstImage = imageNames.first
-            let url = URL(string: firstImage ?? "")
-            self.imageView.sd_setImage(with: url, completed: nil)
+            let firstImage = imageNames.first ?? ""
+            if let url = URL(string: firstImage) {
+                self.imageView.sd_setImage(with: url, completed: nil)
+            }
             
             guard let textAlignment = cardViewModel?.textAlignment else {return}
             guard let attributedTest = cardViewModel?.attributedText else {return}
@@ -105,6 +106,19 @@ class CardView: UIView {
         gradientLayer.frame = self.frame
     }
     
+    func setupImgaeObserver() {
+        
+        cardViewModel.imageIndexObserver = { [unowned self] (index, imageUrl) in
+            if let url = URL(string: imageUrl!) {
+                self.imageView.sd_setImage(with: url)
+            }
+            self.barsStackView.arrangedSubviews.forEach({ (v) in
+                v.backgroundColor = UIColor(white: 0, alpha: 0.1)
+            })
+            self.barsStackView.arrangedSubviews[index].backgroundColor = .white
+        }
+    }
+    
     @objc func handleTap(gesture: UITapGestureRecognizer) {
         
         let location = gesture.location(in: nil)
@@ -125,18 +139,7 @@ class CardView: UIView {
 //        self.imageView.image = UIImage(named: cardViewModel.imageNames[imageIndex])
     }
     
-    func setupImgaeObserver() {
-        
-        cardViewModel.imageIndexObserver = { [unowned self] (index, imageUrl) in
-            if let url = URL(string: imageUrl ?? "") {
-                self.imageView.sd_setImage(with: url)
-            }
-            self.barsStackView.arrangedSubviews.forEach({ (v) in
-                v.backgroundColor = UIColor(white: 0, alpha: 0.1)
-            })
-            self.barsStackView.arrangedSubviews[index].backgroundColor = .white
-        }
-    }
+    
     
     @objc func handlePan(gesture: UIPanGestureRecognizer) {
         
