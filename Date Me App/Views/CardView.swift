@@ -9,8 +9,14 @@
 import UIKit
 import SDWebImage
 
+protocol CardViewDelegate: class{
+    func didTapMoreInfo(cardViewModel: CardViewModel)
+}
+
 class CardView: UIView {
     
+    
+    weak var delegate: CardViewDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -49,7 +55,6 @@ class CardView: UIView {
     
     let imageView: UIImageView = {
         let iv = UIImageView()
-        iv.image = #imageLiteral(resourceName: "mouni")
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
@@ -63,6 +68,18 @@ class CardView: UIView {
         label.textColor = .white
         return label
     }()
+    
+    let moreInfoButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(#imageLiteral(resourceName: "info_icon").withRenderingMode(.alwaysOriginal), for: .normal)
+        button.addTarget(self, action: #selector(handleMoreInfo), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc func handleMoreInfo() {
+        self.delegate?.didTapMoreInfo(cardViewModel: self.cardViewModel)
+    }
     
     fileprivate func setupViews() {
         self.addSubview(imageView)
@@ -80,6 +97,12 @@ class CardView: UIView {
         informationLabel.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         informationLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         informationLabel.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
+        self.addSubview(moreInfoButton)
+        moreInfoButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
+        moreInfoButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -20).isActive = true
+        moreInfoButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        moreInfoButton.widthAnchor.constraint(equalToConstant: 44).isActive = true
     }
     
     let barsStackView = UIStackView()
@@ -109,7 +132,8 @@ class CardView: UIView {
     func setupImgaeObserver() {
         
         cardViewModel.imageIndexObserver = { [unowned self] (index, imageUrl) in
-            if let url = URL(string: imageUrl!) {
+            guard let imageUrl = imageUrl else {return}
+            if let url = URL(string: imageUrl) {
                 self.imageView.sd_setImage(with: url)
             }
             self.barsStackView.arrangedSubviews.forEach({ (v) in

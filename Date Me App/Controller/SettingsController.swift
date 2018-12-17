@@ -11,11 +11,17 @@ import Firebase
 import SDWebImage
 import JGProgressHUD
 
+protocol SettingsControllerDelegate: class {
+    func reloadUsers()
+}
+
 class CustiomeImagePicker: UIImagePickerController {
     var button: UIButton?
 }
 
 class SettingsController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    weak var delegate: SettingsControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -125,16 +131,12 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
     
     fileprivate func fetchCurrentUserInfoFromFirebase() {
         
-        guard let uid = Auth.auth().currentUser?.uid else {return}
-        
-        Firestore.firestore().collection("users").document(uid).getDocument { (snapshot, error) in
-            print(uid)
-            if error != nil {
-                print(error ?? "")
+        Firestore.firestore().fetchCurrentUser { (user, err) in
+            if let err = err {
+                print(err)
             }
             
-            guard let userDictionary = snapshot?.data() else {return}
-            self.user = Users(dictionary: userDictionary)
+            self.user = user
             self.fetchUserImages()
             self.tableView.reloadData()
         }
@@ -200,6 +202,9 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
             }
         }
         hud.dismiss()
+        dismiss(animated: true) {
+            self.delegate?.reloadUsers()
+        }
     }
     
     @objc func handleNameChange(textField: UITextField) {
@@ -219,7 +224,10 @@ class SettingsController: UITableViewController, UIImagePickerControllerDelegate
     }
     
     @objc func handleLogout() {
-        
+        try? Auth.auth().signOut()
+        dismiss(animated: true) {
+            
+        }
     }
 }
 

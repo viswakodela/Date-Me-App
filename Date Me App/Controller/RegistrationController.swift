@@ -10,7 +10,13 @@ import UIKit
 import Firebase
 import JGProgressHUD
 
+protocol RegistrationControllerDelegate: class{
+    func registeredUser()
+}
+
 class RegistrationController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    weak var registartionDelegate: RegistrationControllerDelegate?
     
     override func viewDidLoad() {
          super.viewDidLoad()
@@ -164,6 +170,20 @@ class RegistrationController: UIViewController, UIImagePickerControllerDelegate,
         return button
     }()
     
+    let goToLogInButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Go To Login", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
+        button.addTarget(self, action: #selector(handleGotoLoginButton), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc fileprivate func handleGotoLoginButton() {
+        let loginController = LoginController()
+        navigationController?.pushViewController(loginController, animated: true)
+    }
     
     let handlingRegister = JGProgressHUD(style: .dark)
     
@@ -184,27 +204,29 @@ class RegistrationController: UIViewController, UIImagePickerControllerDelegate,
         
         let fileName = UUID().uuidString
         let storageRef = Storage.storage().reference().child("profile_images").child(fileName)
-        guard let data = self.selectPhotoButton.imageView?.image?.jpegData(compressionQuality: 0.8) else {return}
-        storageRef.putData(data, metadata: nil, completion: { [unowned self] (_, err) in
-            if err != nil {
-                guard let error = err else { return }
-                self.showProgressHUD(error: error)
-                return
-            }
-            self.downloadURLofImage(reference: storageRef)
-            self.handlingRegister.dismiss()
-        })
+        if let data = self.selectPhotoButton.imageView?.image?.jpegData(compressionQuality: 0.8) {
+            storageRef.putData(data, metadata: nil, completion: { (_, err) in
+                if err != nil {
+                    guard let error = err else { return }
+                    print(error)
+                    self.showProgressHUD(error: error)
+                    return
+                }
+                self.downloadURLofImage(reference: storageRef)
+                self.handlingRegister.dismiss()
+            })
+        }
     }
     
     func downloadURLofImage(reference: StorageReference) {
-        reference.downloadURL(completion: { (url, error) in
-            if let error = error {
-                self.showProgressHUD(error: error)
-                return
+        reference.downloadURL { (url, err) in
+            if let err = err {
+                self.showProgressHUD(error: err)
+                print(err)
             }
             guard let url = url?.absoluteString else {return}
             self.saveUsersIntoDatabase(imageUrl: url)
-        })
+        }
     }
     
     func saveUsersIntoDatabase(imageUrl: String) {
@@ -228,6 +250,9 @@ class RegistrationController: UIViewController, UIImagePickerControllerDelegate,
         self.registeringUser(with: email, password: password)
         self.uploadingToStorage()
         self.handlingRegister.dismiss()
+        dismiss(animated: true) {
+            self.registartionDelegate?.registeredUser()
+        }
     }
     
     
@@ -283,7 +308,10 @@ class RegistrationController: UIViewController, UIImagePickerControllerDelegate,
         overallStactView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         overallStactView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50).isActive = true
         
+        view.addSubview(goToLogInButton)
+        goToLogInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        goToLogInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        goToLogInButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 350).isActive = true
+        
     }
-
-    
 }

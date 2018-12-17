@@ -11,31 +11,64 @@ import Firebase
 import JGProgressHUD
 import SDWebImage
 
-class MainScreen: UIViewController {
+class MainScreen: UIViewController, SettingsControllerDelegate, LoginControllerDelegate, RegistrationControllerDelegate {
+    
+    func registeredUser() {
+        fetchCurrentUser()
+    }
+    
+    func reloadUsers() {
+        fetchCurrentUser()
+    }
+    
+    func didFinishLogging() {
+        fetchCurrentUser()
+    }
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpViews()
-        fetchUsersFromFirestore()
+        fetchCurrentUser()
     }
-    
-//    let cardViewModelArray = ([
-//        Users(userName: "Mouni", age: 24, profession: "Software Developer", imageNames: ["mouni", "mouni2"]),
-//        Users(userName: "Susmitha", age: 22, profession: "Developer", imageNames: ["susmi"]),
-//        Advertisers(title: "Date Me App", brandName: "Datooo", posterPhotoName: ["mouni"])
-//        ] as [ProducesCardViewModel]).map { $0.toCardViewModel()}
     
     var cardViewModelArray = [CardViewModel]()
     
-    var lastFetchedUser: Users?
     
+    var user: Users?
+    
+    func fetchCurrentUser() {
+        
+        Firestore.firestore().fetchCurrentUser { (user, err) in
+            if let err = err {
+                self.showProgressHUD(text: err.localizedDescription)
+            }
+            self.user = user
+            self.fetchUsersFromFirestore()
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if Auth.auth().currentUser == nil {
+            let loginController = LoginController()
+            loginController.delegate = self
+            let navController = UINavigationController(rootViewController: loginController)
+            navController.isNavigationBarHidden = true
+            present(navController, animated: true)
+        }
+    }
+    
+    var lastFetchedUser: Users?
     func fetchUsersFromFirestore() {
         
         let hud = JGProgressHUD(style: .dark)
         hud.textLabel.text = "Fetching Users"
         hud.show(in: view)
         
-        let query = Firestore.firestore().collection("users").order(by: "uid").start(after: [lastFetchedUser?.uid ?? ""]).limit(to: 2)
+//        guard let minAge = user?.minAge, let maxAge = user?.maxAge else {return}
+        
+        let query = Firestore.firestore().collection("users")
         
         query.getDocuments { [weak self] (snapshot, error) in
             hud.dismiss()
@@ -67,6 +100,7 @@ class MainScreen: UIViewController {
         cardView.translatesAutoresizingMaskIntoConstraints = false
         cardView.layer.cornerRadius = 10
         cardView.clipsToBounds = true
+        cardView.delegate = self
         
         cardView.cardViewModel = user.toCardViewModel()
         
@@ -91,6 +125,7 @@ class MainScreen: UIViewController {
     
     @objc func handleSettings() {
         let settings = SettingsController()
+        settings.delegate = self
         let navSettingsController = UINavigationController(rootViewController: settings)
         present(navSettingsController, animated: true, completion: nil)
     }
@@ -209,5 +244,15 @@ class MainScreen: UIViewController {
         bottomStackview.bottomAnchor.constraint(equalTo: yellowView.safeAreaLayoutGuide.bottomAnchor, constant: -8).isActive = true
     }
 
+}
+
+extension MainScreen: CardViewDelegate {
+    
+    func didTapMoreInfo(cardViewModel: CardViewModel) {
+        let userDetailController = userDetailsController()
+        userDetailController.cardViewModel = cardViewModel
+        present(userDetailController, animated: true, completion: nil)
+    }
+    
 }
 
